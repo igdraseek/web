@@ -1,0 +1,12 @@
+<template name="appBody">
+    <div id="header">
+        {{#if currentUser}}
+            {{currentUser.username}}
+        {{else}}
+            {{> loginButtons}}
+        {{/if}}
+    </div>
+    <div id="content-container">
+        {{> yield}}
+    </div>
+</template>

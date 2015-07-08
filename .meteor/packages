@@ -10,3 +10,5 @@ insecure
 nemo64:bootstrap
 less
 iron:router
+accounts-ui
+accounts-password
