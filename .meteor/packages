@@ -1,3 +1,6 @@
+meteor-platform
+autopublish
+insecure
 nemo64:bootstrap
 less
 accounts-ui
