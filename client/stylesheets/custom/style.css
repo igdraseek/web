@@ -3,6 +3,10 @@ html * {
     /*-moz-osx-font-smoothing: grayscale;*/
 }
 
+body {
+    border-top: 8px solid #67C4B0;
+}
+
 html, body {
     font-family: 'Source Sans Pro', sans-serif;
     font-weight: 400;
@@ -32,9 +36,6 @@ a:hover {
 }
 .color {
     background-color: #67C4B0;
-}
-#home {
-    border-top: 8px solid #67C4B0;
 }
 
 .container-fluid {
