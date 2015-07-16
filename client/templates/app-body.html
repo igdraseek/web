@@ -1,12 +1,48 @@
 <template name="appBody">
-    <div id="header">
-        {{#if currentUser}}
-            {{currentUser.username}}
-        {{else}}
-            {{> loginButtons}}
-        {{/if}}
+    <div id="wrap">
+
+        {{> header}}
+
+        <div id="content-container">
+            {{> yield}}
+        </div>
+
+        {{> footer}}
     </div>
-    <div id="content-container">
-        {{> yield}}
+</template>
+
+<template name="header">
+    <div id="main-nav" class="">
+        <div class="container-fluid">
+            <div class="nav-header">
+                <a href="index.html" class="#needtoputimagehere"><img src="img/igdra_logo.png" class="img-responsive" height="37.5" width="87.5"></a>
+                <a class="nav-icon pull-right visible-xs menu-link" href="#"><i class="icon-menu2"></i></a>
+                <a class="nav-icon-outline cart pull-right" href="cart.html"><i class="icon-cart"></i><span class="badge">3</span></a>
+            </div>
+        </div>
     </div>
+</template>
+
+<template name="footer">
+    <footer>
+        <div class="container-fluid">
+            <div class="pull-left copyright">
+                <p>IGDRA &copy; 2015.</p>
+                <ul class="nav-list effect">
+                    <li><a href="terms-conditions.html">Delivery & Returns</a></li>
+                    <li><a href="terms-conditions.html">Terms & Conditions</a></li>
+                    <li><a href="privacy.html">Privacy</a></li>
+                    <li><a href="faq.html">FAQ</a></li>
+                </ul>
+            </div>
+
+            <div class="pull-right copyright">
+                <ul class="social-links">
+                    <li><a href="#"><i class="icon-twitter"></i></a></li>
+                    <li><a href="#"><i class="icon-facebook"></i></a></li>
+                    <li><a href="#"><i class="icon-pinterest"></i></a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
 </template>

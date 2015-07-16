@@ -2,7 +2,7 @@
   "modules" : {
     "normalize"            : true,
     "print"                : false,
-    "glyphicons"           : false,
+    "glyphicons"           : true,
 
     "scaffolding"          : false,
     "type"                 : false,
@@ -10,7 +10,7 @@
     "grid"                 : false,
     "tables"               : false,
     "forms"                : true,
-    "buttons"              : false,
+    "buttons"              : true,
 
     "component-animations" : false,
     "dropdowns"            : true,

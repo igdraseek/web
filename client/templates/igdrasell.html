@@ -1,11 +1,11 @@
 <template name="home">
     {{#if currentUser}}
         {{#if isMerchant}}
-            <h4>Welcome back, {{userName}}</h4>
+            <h2>Welcome back, {{userName}}</h2>
         {{else}}
             <button>Let's Set Up Your Store</button>
         {{/if}}
     {{else}}
-            <h1>Welcome to Igdra!</h1>
+            <h1>Welcome to Igdra! Please sign in or create an account.</h1>
     {{/if}}
 </template>
