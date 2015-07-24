@@ -1,5 +1,13 @@
+var topCategories = [
+    ProductCategory.APPAREL,
+    ProductCategory.SHOES,
+    ProductCategory.FASHION
+];
+
+Meteor.subscribe('coverItems');
+
 Template.igdraseek.helpers({
-    items: function () {
-        return Items.find();
+    coverItems: function () {
+        return CoverItems.find();
     }
 });

@@ -1,14 +1,53 @@
+<!-- Show a few top categories. -->
 <template name="igdraseek">
-    <div class="row">
-        {{#each items}}
-            <div class="content_item col-xs-12 col-sm-6 col-md-4 col-lg-3">
-                {{>item}}
-            </div>
-        {{/each}}
+    <div class="container-fluid productlist">
+        <div class="row">
+            {{#each coverItems}}
+                {{> coverItem}}
+            {{/each}}
+        </div>
+    </div>
+</template>
+
+<!-- The cover item, clicking on it takes you to itemList. -->
+<template name="coverItem">
+    <div class="col-sm-4">
+        <a href="itemList/{{productCategory}}/merchant/{{merchant}}">
+            <img src={{imageUrl}} class="img-responsive" alt="item">
+                <span class="productlist-price-container">
+                    <span class="product-price">
+                        <span>{{title}}</span>
+                    </span>
+                </span>
+        </a>
+    </div>
+</template>
+
+<!-- Product list -->
+<template name="itemList">
+    <div class="container-fluid productlist">
+        <div class="row">
+            {{#each topItems}}
+                {{> itemDetail}}
+            {{/each}}
+        </div>
     </div>
 </template>
 
 <!-- A single item. -->
-<template name="item">
+<template name="itemDetail">
+    <div class="col-sm-4">
+        <a href={{detailUrl}}>
+            <img src={{imageUrl}} class="img-responsive" alt="item">
+                <span class="productlist-price-container">
+                    <span class="product-price">
+                        <span>{{title}}</span>
+                    </span>
+                </span>
+        </a>
+    </div>
+</template>
 
+<template name="loading">
+    <h1>LOADING ... </h1>
 </template>

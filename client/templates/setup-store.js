@@ -1,11 +1,4 @@
-var SOCIAL_RESP_CATEGORY = [
-    "Sustainable",
-    "Women-Owned",
-    "Veteran",
-    "Disabled-Owned",
-    "Low-Income Neighborhood",
-    "Organic Only"
-];
+
 
 Template.setup.helpers({
     socialRespCat: function () {

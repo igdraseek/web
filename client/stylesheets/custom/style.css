@@ -275,28 +275,12 @@ a:hover {
 }
 .productlist .row {
     margin-right: 0;
-
     margin-left: 0;
-}
-.productlist .col-sm-12,
-.productlist .col-sm-8,
-.productlist .col-sm-6,
-.productlist .col-sm-4 {
-    position: relative;
-    min-height: 1px;
-    padding: 2px;
-
-}
-.productlist .col-sm-4.special {
-    padding: 0;
 }
 
 .productlist-price-container {
-    position: absolute;
-    bottom: 0;
-    right: 0;
     max-width: 90%;
-    text-align: right;
+    text-align: center;
     z-index: 89;
     margin: 22px;
 }
