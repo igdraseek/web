@@ -1,5 +1,5 @@
 Template.igdraseek.helpers({
     items: function () {
-        return Items.find();
+        return TopItems.find();
     }
 });

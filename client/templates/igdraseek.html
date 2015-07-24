@@ -1,14 +1,23 @@
 <template name="igdraseek">
-    <div class="row">
-        {{#each items}}
-            <div class="content_item col-xs-12 col-sm-6 col-md-4 col-lg-3">
-                {{>item}}
-            </div>
-        {{/each}}
+    <div class="container-fluid productlist">
+        <div class="row">
+            {{#each items}}
+                {{> item}}
+            {{/each}}
+        </div>
     </div>
 </template>
 
 <!-- A single item. -->
 <template name="item">
-
+    <div class="col-sm-4">
+        <a href="product1.html">
+            <img src={{imageUrl}} class="img-responsive" alt="item">
+                <span class="productlist-price-container">
+                    <span class="product-price">
+                        <span class="price">{{title}}</span>
+                    </span>
+                </span>
+        </a>
+    </div>
 </template>
