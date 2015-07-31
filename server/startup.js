@@ -1,7 +1,30 @@
 /**************** Fiber ****************/
 var Fiber = Meteor.npmRequire('fibers');
 
-// TODO(luping): find amzn merchant id.
+/********** Amazon API helper ***********/
+var util = Meteor.npmRequire('util'),
+    OperationHelper = Meteor.npmRequire('apac').OperationHelper;
+
+var opHelper = new OperationHelper({
+    awsId:     'AKIAJGASX5JUQORNBMGQ',
+    awsSecret: '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',
+    assocId:   'igdraseek-20',
+    // xml2jsOptions: an extra, optional, parameter for if you want to pass additional options for the xml2js module.
+    // (see https://github.com/Leonidas-from-XIV/node-xml2js#options)
+    version:   '2013-08-01'
+    // your version of using product advertising api, default: 2013-08-01
+});
+
+var SOCIAL_RESP_CATEGORY = [
+    "Local",
+    "Sustainable",
+    "Women Owned",
+    "Veteran",
+    "Disabled Owned",
+    "Low Income Neighborhood",
+    "Organic"
+];
+
 Meteor.startup(function() {
     var merchants = [
         {
