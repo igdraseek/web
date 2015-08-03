@@ -82,9 +82,8 @@ parseItemSearchRes = function (res) {
 parseItem = function(amznItem, dbItem) {
     dbItem.detailUrl = amznItem['DetailPageURL'];
     var attrs = amznItem['ItemAttributes'][0];
-    dbItem.title = amznItem['Title'];
-    console.log("title: " + titile);
-    dbItem.features = amznItem['Feature'];
+    dbItem.title = attrs['Title'];
+    dbItem.features = attrs['Feature'];
 
     return amznItem['ASIN'];
 }

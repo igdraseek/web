@@ -106,14 +106,10 @@ function getCoverItems(category, brand) {
         console.log("search for: " + categoryName + " for " + brand);
         // Async search on amazon and wait for the result from the fiber.
         var itemSearchRes = amznItemSearch(categoryName, brand);
-        var dbItem = {
-            productCategory: category,
-            merchant: brand
-        };
+        var dbItem = {};
 
         var itemArray = parseItemSearchRes(itemSearchRes);
         var asin = parseItem(itemArray[0], dbItem);
-        dbItem.titile =  ProductCategory.properties[category].descriptiveName;
 
         var imageSearchRes = amznItemLookup(asin);
         parseImageSearchRes(imageSearchRes, dbItem);
@@ -121,7 +117,16 @@ function getCoverItems(category, brand) {
         CoverItems.update(
             { _id: asin.toString()},
             {
-                $setOnInsert: dbItem
+                $setOnInsert: {
+                    productCategory: category,
+                    merchant: brand,
+                    detailUrl: dbItem.detailUrl,
+                    title: ProductCategory.properties[category].descriptiveName,
+                    feature: dbItem.features
+                },
+                $set: {
+                    imageUrl: dbItem.imageUrl
+                }
             },
             { upsert: true},
             function(err, res) {
