@@ -1,20 +1,6 @@
 /**************** Fiber ****************/
 var Fiber = Meteor.npmRequire('fibers');
 
-/********** Amazon API helper ***********/
-var util = Meteor.npmRequire('util'),
-    OperationHelper = Meteor.npmRequire('apac').OperationHelper;
-
-var opHelper = new OperationHelper({
-    awsId:     'AKIAJGASX5JUQORNBMGQ',
-    awsSecret: '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',
-    assocId:   'igdraseek-20',
-    // xml2jsOptions: an extra, optional, parameter for if you want to pass additional options for the xml2js module.
-    // (see https://github.com/Leonidas-from-XIV/node-xml2js#options)
-    version:   '2013-08-01'
-    // your version of using product advertising api, default: 2013-08-01
-});
-
 var SOCIAL_RESP_CATEGORY = [
     "Local",
     "Sustainable",
@@ -93,24 +79,29 @@ Meteor.startup(function() {
     }
 
     if (CoverItems.find().count() == 0) {
-        // startSearch('Shoes', 'Indosole');
+        // For each merchant, fetch its products (8 products are returned on each request),
+        // and get the cover item (for now that's just the first item returned).
         _.each(merchants, function(merchant) {
-            getCoverItems(merchant.productCategory, merchant.brand);
+            getCoverItem(merchant.productCategory, merchant.brand);
         });
      }
 });
 
-function getCoverItems(category, brand) {
+// For now we just go get the first item of the given brand and category.
+function getCoverItem(category, brand) {
     Fiber(function() {
         var categoryName = ProductCategory.properties[category].name;
         console.log("search for: " + categoryName + " for " + brand);
+
         // Async search on amazon and wait for the result from the fiber.
         var itemSearchRes = amznItemSearch(categoryName, brand);
         var dbItem = {};
 
         var itemArray = parseItemSearchRes(itemSearchRes);
+        // Only get image for the cover item, for now this is the first item.
         var asin = parseItem(itemArray[0], dbItem);
 
+        // Look up image for the item.
         var imageSearchRes = amznItemLookup(asin);
         parseImageSearchRes(imageSearchRes, dbItem);
 
@@ -119,9 +110,10 @@ function getCoverItems(category, brand) {
             {
                 $setOnInsert: {
                     productCategory: category,
+                    productCategoryName: ProductCategory.properties[category].descriptiveName,
                     merchant: brand,
                     detailUrl: dbItem.detailUrl,
-                    title: ProductCategory.properties[category].descriptiveName,
+                    title: dbItem.title,
                     feature: dbItem.features
                 },
                 $set: {

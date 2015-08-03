@@ -37,7 +37,7 @@ amznItemSearch = function (category, brand) {
     });
 
     return Fiber.yield();
-}
+};
 
 amznItemLookup = function(itemId, dbItem) {
     var fiber = Fiber.current;
@@ -56,7 +56,7 @@ amznItemLookup = function(itemId, dbItem) {
     });
 
     return Fiber.yield();
-}
+};
 
 parseItemSearchRes = function (res) {
     var jsonResponse = res[0];
@@ -86,7 +86,7 @@ parseItem = function(amznItem, dbItem) {
     dbItem.features = attrs['Feature'];
 
     return amznItem['ASIN'];
-}
+};
 
 parseImageSearchRes = function(res, dbItem) {
     var jsonResponse = res[0];
@@ -123,4 +123,4 @@ parseImageSearchRes = function(res, dbItem) {
     }
 
     dbItem.imageUrl = imageUrl;
-}
+};

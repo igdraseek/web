@@ -8,3 +8,4 @@ iron:router
 meteorhacks:npm
 
 npm-container
+meteorhacks:search-source

@@ -38,14 +38,6 @@ a:hover {
     background-color: #67C4B0;
 }
 
-.container-fluid {
-    margin-right: auto;
-    margin-left: auto;
-    /* padding-right: 10px; */
-    /* padding-left: 10px; */
-    max-width: 1200px;
-}
-
 .title h2{
     margin-bottom: 20px;
     /*border-top: 1px solid #ddd;*/

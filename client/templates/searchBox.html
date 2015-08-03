@@ -1,0 +1,15 @@
+<template name="searchBox">
+    <div id='search-box-container' class="dropdown">
+        <input type="text" id="search-box" data-toggle="dropdown" class="dropdown-toggle"/>
+        <ul class="dropdown-menu">
+            {{#each getMatches}}
+                {{#each matches}}
+                    <li>
+                        <a href="{{link}}">{{{matchText}}}</a>
+                    </li>
+                {{/each}}
+                <li>--------------</li>
+            {{/each}}
+        </ul>
+    </div>
+</template>

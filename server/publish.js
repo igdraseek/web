@@ -57,6 +57,7 @@ function getImageUrlAndUpdateItem(asin, dbItem, brand, category) {
         {
             $setOnInsert: {
                 productCategory: category,
+                productCategoryName: ProductCategory.properties[category].descriptiveName,
                 merchant: brand,
                 detailUrl: dbItem.detailUrl,
                 title: dbItem.title,
