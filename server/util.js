@@ -39,7 +39,7 @@ amznItemSearch = function (category, brand) {
     return Fiber.yield();
 };
 
-amznItemLookup = function(itemId, dbItem) {
+amznItemImage = function(itemId, dbItem) {
     var fiber = Fiber.current;
 
     opHelper.execute('ItemLookup', {
@@ -48,7 +48,7 @@ amznItemLookup = function(itemId, dbItem) {
         'ResponseGroup': 'Images'
     }, function (err, jsonRes, xmlRes) {
         if (err) {
-            console.log('err in amznItemLookup for ' + dbItem.title + ': ' + err);
+            console.log('err in amznItemImage for ' + dbItem.title + ': ' + err);
             console.dir(xmlRes);
         } else {
             fiber.run([jsonRes, xmlRes]);
@@ -57,6 +57,26 @@ amznItemLookup = function(itemId, dbItem) {
 
     return Fiber.yield();
 };
+
+amznItemDetails = function(itemId) {
+    var fiber = Fiber.current;
+
+    opHelper.execute('ItemLookup', {
+        'ItemId': itemId,
+        'IdType' : 'ASIN',
+        'ResponseGroup': 'ItemAttributes,Images'
+    }, function (err, jsonRes, xmlRes) {
+        if (err) {
+            console.log('err in amznItemDetails for ' + itemId + ': ' + err);
+            console.dir(xmlRes);
+        } else {
+            fiber.run([jsonRes, xmlRes]);
+        }
+    });
+
+    return Fiber.yield();
+};
+
 
 parseItemSearchRes = function (res) {
     var jsonResponse = res[0];
@@ -99,22 +119,7 @@ parseImageSearchRes = function(res, dbItem) {
         var imageItem = imageItems['Item'][0];
         //console.log('------ImageSets---- lenghth : ' + imageSets.length + '-----');
         if (imageItem != undefined) {
-            var mediumImage = imageItem['MediumImage'][0];
-            if (mediumImage != undefined) {
-                imageUrl = mediumImage['URL'];
-            } else {
-                var largeImage = imageItem['LargeImage'][0];
-                if (largeImage != undefined) {
-                    imageUrl = largeImage['URL'];
-                } else {
-                    var smallImage = imageItem['SmallImage'][0];
-                    if (smallImage != undefined) {
-                        imageUrl = smallImage['URL'];
-                    } else {
-                        console.warn('No images found for \"' + dbItem.title + '\"\n' + xmlResponse);
-                    }
-                }
-            }
+            imageUrl = getImageUrl(imageItem);
         } else {
             console.warn('Image Item is undefined for \"' + dbItem.title + '\"\n' + xmlResponse);
         }
@@ -123,4 +128,26 @@ parseImageSearchRes = function(res, dbItem) {
     }
 
     dbItem.imageUrl = imageUrl;
+};
+
+getImageUrl = function(imageItem) {
+    var imageUrl;
+    var mediumImage = imageItem['MediumImage'][0];
+    if (mediumImage != undefined) {
+        imageUrl = mediumImage['URL'];
+    } else {
+        var largeImage = imageItem['LargeImage'][0];
+        if (largeImage != undefined) {
+            imageUrl = largeImage['URL'];
+        } else {
+            var smallImage = imageItem['SmallImage'][0];
+            if (smallImage != undefined) {
+                imageUrl = smallImage['URL'];
+            } else {
+                console.warn('No images found for \"' + dbItem.title + '\"\n' + xmlResponse);
+            }
+        }
+    }
+
+    return imageUrl;
 };

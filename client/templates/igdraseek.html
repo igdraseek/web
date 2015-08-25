@@ -1,5 +1,8 @@
 <!-- Show a few top categories. -->
 <template name="igdraseek">
+
+    {{> searchBox}}
+
     <div class="container-fluid productlist">
         <div class="row">
             {{#each coverItems}}
@@ -25,6 +28,9 @@
 
 <!-- Product list -->
 <template name="itemList">
+
+    {{> searchBox}}
+
     <div class="container-fluid productlist">
         <div class="row">
             {{#each topItems}}
@@ -38,7 +44,7 @@
 <template name="itemDetail">
     <div class="col-sm-4">
         <a href={{detailUrl}}>
-            <img src={{imageUrl}} class="img-responsive" alt="item">
+            <img src={{imageUrl}} class="img-responsive">
                 <span class="productlist-price-container">
                     <span class="product-price">
                         <span>{{title}}</span>

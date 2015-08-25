@@ -10,12 +10,12 @@ Meteor.publish('topItems', function(brand, category) {
 
    if (TopItems.findOne({merchant: brand, productCategory: category}) == undefined) {
        console.log('TopItems is empty');
-      Fiber(function() {
-         // Async search on amazon and wait for the result from the fiber.
-         var itemSearchRes = amznItemSearch(categoryName, brand);
-         var itemArray = parseItemSearchRes(itemSearchRes);
+       Fiber(function() {
+           // Async search on amazon and wait for the result from the fiber.
+           var itemSearchRes = amznItemSearch(categoryName, brand);
+           var itemArray = parseItemSearchRes(itemSearchRes);
 
-          for (var i = 0; i < itemArray.length; i++) {
+           for (var i = 0; i < itemArray.length; i++) {
 
               var dbItem = {};
               var asin = parseItem(itemArray[i], dbItem);
@@ -46,9 +46,13 @@ Meteor.publish('topItems', function(brand, category) {
    return TopItems.find({ merchant: brand, productCategory: category});
 });
 
+Meteor.publish('userCollections', function(collectionId) {
+    return UserCollections.find({_id: collectionId});
+});
+
 // Only call this from within a Fiber.
 function getImageUrlAndUpdateItem(asin, dbItem, brand, category) {
-    var imageSearchRes = amznItemLookup(asin);
+    var imageSearchRes = amznItemImage(asin);
     parseImageSearchRes(imageSearchRes, dbItem);
     // TODO(luping): if failed to fetch image, schedule to refetch the item in a little bit.
 

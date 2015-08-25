@@ -1,0 +1,64 @@
+<template name="addCollection">
+    <div class="container-fluid productlist">
+        <div class="row">
+            <div id="text-area" class="col-sm-12">
+                <textarea cols="100" rows="2" id="newItem" placeholder="Paste amazon link here to search and add a new item to your collection"></textarea>
+            </div>
+        </div>
+
+        <div class="row">
+            <div id="new-item" class="col-sm-3">
+                {{#with newItem}}
+                    {{> itemDetail}}
+                {{/with}}
+            </div>
+
+            <div id="collection-list" class="col-sm-9 special">
+                {{#if newItem}}
+                    <div><h4>Choose a collection from below to add this item to.</h4></div>
+                {{/if}}
+                <h3>My Collections</h3>
+                {{#each collections}}
+                    <p><a class="collectionLink" href="collection/{{collectionId}}">{{title}}</a></p>
+                {{/each}}
+
+                <form class="form-horizontal">
+                    <div class="col-sm-6">
+                        <input type="text" class="form-control input-lg" id="collectionTitle"  placeholder="Enter name of Collection">
+                    </div>
+                    <div class="col-sm-3">
+                        <button id="createCollection" type="submit" class="btn btn-primary">Create new collection</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</template>
+
+<template name="collection">
+    <div class="container-fluid productlist">
+        {{#if newItem}}
+            <div id="choose-sr-categories">
+                <h4>Choose a category for you item to be added to this collection</h4>
+                <form>
+                    {{#each socialCategories}}
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" name="socialCategory" value="{{value}}">{{name}}
+                            </label>
+                        </div>
+                    {{/each}}
+                    <input type="hidden" name="collectionId" value="{{collectionId}}">
+                    <button type="submit" class="btn btn-default">Add To Collection</button>
+                </form>
+            </div>
+        {{/if}}
+
+        <h3>{{collectionTitle}}</h3>
+        <div class="row">
+            {{#each collectionItems}}
+                {{> itemDetail}}
+            {{/each}}
+        </div>
+    </div>
+</template>

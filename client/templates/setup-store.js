@@ -1,8 +1,6 @@
-
-
 Template.setup.helpers({
     socialRespCat: function () {
-        return SOCIAL_RESP_CATEGORY;
+        return SOCIAL_RESP_CATEGORIES;
     }
 });
 

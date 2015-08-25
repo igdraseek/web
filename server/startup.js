@@ -1,15 +1,15 @@
+Accounts.onCreateUser(function(options, user) {
+    if (options.profile) {
+        user.profile = options.profile;
+    } else if (user.profile == undefined) {
+        user.profile = {};
+    }
+    _.extend(user.profile, { collections : [] });
+    return user;
+});
+
 /**************** Fiber ****************/
 var Fiber = Meteor.npmRequire('fibers');
-
-var SOCIAL_RESP_CATEGORY = [
-    "Local",
-    "Sustainable",
-    "Women Owned",
-    "Veteran",
-    "Disabled Owned",
-    "Low Income Neighborhood",
-    "Organic"
-];
 
 Meteor.startup(function() {
     var merchants = [
@@ -102,7 +102,7 @@ function getCoverItem(category, brand) {
         var asin = parseItem(itemArray[0], dbItem);
 
         // Look up image for the item.
-        var imageSearchRes = amznItemLookup(asin);
+        var imageSearchRes = amznItemImage(asin);
         parseImageSearchRes(imageSearchRes, dbItem);
 
         CoverItems.update(

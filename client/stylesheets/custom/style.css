@@ -545,11 +545,6 @@ address {
 
 
 /* ------------------------------ skin checkbox -------------------------- */
-input[type="radio"],
-input[type="checkbox"] {
-    display:none;
-}
-
 input[type="radio"] + span:before,
 input[type="checkbox"] + span:before {
     position: relative;
