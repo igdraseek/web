@@ -66,7 +66,23 @@ Template.addCollection.events({
 
 Template.collection.helpers({
     socialCategories: function() {
-        return SOCIAL_RESP_CATEGORIES;
+        var newItem = Session.get('newItem');
+        var existingCategories = newItem['socialCategories'];
+
+        var socialCategories = [];
+        for (var i = 0; i < SOCIAL_RESP_CATEGORIES.length; i++) {
+            var cat = SOCIAL_RESP_CATEGORIES[i];
+            var name = cat.name;
+            var value = cat.value;
+            var checked = (_.contains(existingCategories, value));
+
+            socialCategories.push({name: name, value: value, checked: checked});
+        }
+
+        console.log("social cat:");
+        console.dir(socialCategories);
+
+        return socialCategories;
     },
     newItem: function() {
         return Session.get('newItem');
@@ -79,16 +95,20 @@ Template.collection.events({
 
         var item = Session.get('newItem');
         if (item) {
-            console.log("still have new item, adding it");
+            console.log("still have newItem, adding it");
             var collectionId = $('input[name=collectionId]').val();
             console.log("hidden collectionId " + collectionId);
 
             var socialCategories = [];
             $('input[name=socialCategory]:checked').each(function() {
-                socialCategories.push($(this).val());
+                socialCategories.push(parseInt($(this).val()));
             });
 
-            item['socialResCateory'] = socialCategories;
+            if (socialCategories.length == 0) {
+                alert("You must select a social category before adding this item to the collection");
+            }
+
+            item['socialCategories'] = socialCategories;
             console.dir(item);
 
             Meteor.call('addToCollection', collectionId, item, function(err, res) {

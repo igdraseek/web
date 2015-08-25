@@ -50,6 +50,10 @@ Meteor.publish('userCollections', function(collectionId) {
     return UserCollections.find({_id: collectionId});
 });
 
+Meteor.publish('collectedItems', function() {
+    return CollectedItems.find();
+});
+
 // Only call this from within a Fiber.
 function getImageUrlAndUpdateItem(asin, dbItem, brand, category) {
     var imageSearchRes = amznItemImage(asin);
@@ -62,6 +66,7 @@ function getImageUrlAndUpdateItem(asin, dbItem, brand, category) {
             $setOnInsert: {
                 productCategory: category,
                 productCategoryName: ProductCategory.properties[category].descriptiveName,
+                socialCategories: [],
                 merchant: brand,
                 detailUrl: dbItem.detailUrl,
                 title: dbItem.title,

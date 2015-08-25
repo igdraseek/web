@@ -39,13 +39,18 @@
     <div class="container-fluid productlist">
         {{#if newItem}}
             <div id="choose-sr-categories">
-                <h4>Choose a category for you item to be added to this collection</h4>
+                <h4>Choose a category for your item to be added to this collection</h4>
                 <form>
                     {{#each socialCategories}}
                         <div class="checkbox">
-                            <label>
+                        <label>
+                            {{#if checked}}
+                                <input type="hidden" name="socialCategory" value="{{value}}">
+                                <input type="checkbox" disabled readonly checked>{{name}}
+                            {{else}}
                                 <input type="checkbox" name="socialCategory" value="{{value}}">{{name}}
-                            </label>
+                            {{/if}}
+                        </label>
                         </div>
                     {{/each}}
                     <input type="hidden" name="collectionId" value="{{collectionId}}">

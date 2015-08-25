@@ -2,17 +2,17 @@ var Fiber = Meteor.npmRequire('fibers');
 
 Meteor.methods({
     'amznItemDetails': function(itemId) {
-        var dbItem = TopItems.findOne({_id: itemId});
-        if (dbItem != null && dbItem != undefined) {
-            console.log("found in TopItems");
+        // Look into collected items first.
+        var dbItem = CollectedItems.findOne({_id: itemId});
+        if (dbItem) {
+            console.log("method amznItemDetails: found in CollectedItems " + itemId);
             return dbItem;
         }
-        dbItem = UserCollections.findOne({
-            'creator': this.userId,
-            'items._id': itemId
-        });
-        if (dbItem != null && dbItem != undefined) {
-            console.log("found in UserCollections");
+
+        // Could be in topItems and not in any collections yet.
+        dbItem = TopItems.findOne({_id: itemId});
+        if (dbItem) {
+            console.log("method amznItemDetails: found in TopItems" + itemId);
             return dbItem;
         }
 
@@ -37,7 +37,8 @@ Meteor.methods({
                         //merchant: brand,
                         detailUrl: dbItem.detailUrl,
                         title: dbItem.title,
-                        feature: dbItem.features
+                        feature: dbItem.features,
+                        socialCategories: []
                     },
                     $set: {
                         imageUrl: dbItem.imageUrl
@@ -78,16 +79,28 @@ Meteor.methods({
     },
 
     'addToCollection': function(collectionId, item) {
-        var oldItem = UserCollections.findOne({
-            _id: collectionId,
-            'items._id': item._id
-        });
-        if (!oldItem) {
-            console.log("adding to collection");
-            UserCollections.update(
-                {_id: collectionId},
+        UserCollections.update(
+            {_id: collectionId},
+            {
+                $addToSet: {items: item._id}
+            },
+            function (err, res) {
+                if (err) {
+                    console.log('err adding to UserCollections: ' + err);
+                }
+            });
+
+        var oldItem = CollectedItems.findOne({_id: item._id});
+        if (oldItem) {
+            CollectedItems.update(
+                {_id: item._id},
                 {
-                    $push: {items: item}
+                    $addToSet: {
+                        socialCategories: {$each: item.socialCategories}
+                    },
+                    $currentDate: {
+                      lastCollected: {$type: "timestamp"}
+                    }
                 },
                 function (err, res) {
                     if (err) {
@@ -95,7 +108,19 @@ Meteor.methods({
                     }
                 });
         } else {
-            console.log("found item in UserCollection");
+            CollectedItems.insert(item);
+            CollectedItems.update(
+                {_id: item._id},
+                {
+                    $currentDate: {
+                        lastCollected: {$type: "timestamp"}
+                    }
+                },
+                function (err, res) {
+                    if (err) {
+                        console.log('err: ' + err);
+                    }
+                });
         }
     }
 });
