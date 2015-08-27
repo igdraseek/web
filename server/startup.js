@@ -17,7 +17,7 @@ Meteor.startup(function() {
             brand: 'Synergy Organic Clothing',
             amznId: '',
             productCategory: ProductCategory.FASHION,
-            socialResCateory: [
+            socialCategories: [
                 SociallyResponsibleCategory.ORGANIC
             ],
             certs: [
@@ -35,7 +35,7 @@ Meteor.startup(function() {
             brand: 'Indosole',
             amznId: '',
             productCategory: ProductCategory.SHOES,
-            socialResCateory: [
+            socialCategories: [
                 SociallyResponsibleCategory.UPCYCLER
             ],
             certs: [],
@@ -49,7 +49,7 @@ Meteor.startup(function() {
             brand: 'Oaklandish',
             amznId: '',
             productCategory: ProductCategory.FASHION,
-            socialResCateory: [],
+            socialCategories: [],
             certs: [],
             bCorpScore: 100,
             keywords: [
@@ -60,7 +60,7 @@ Meteor.startup(function() {
             brand: 'Bixbee',
             amznId: '',
             productCategory: ProductCategory.LUGGAGE,
-            socialResCateory: [
+            socialCategories: [
                 SociallyResponsibleCategory.ONE_FOR_ONE
             ],
             certs: [],
@@ -74,58 +74,41 @@ Meteor.startup(function() {
 
     if (Merchants.find().count() == 0) {
         _.each(merchants, function (merchant) {
-            Merchants.insert(merchant);
+            insertMerchantWithCoverItem(merchant);
         });
     }
-
-    if (CoverItems.find().count() == 0) {
-        // For each merchant, fetch its products (8 products are returned on each request),
-        // and get the cover item (for now that's just the first item returned).
-        _.each(merchants, function(merchant) {
-            getCoverItem(merchant.productCategory, merchant.brand);
-        });
-     }
 });
 
 // For now we just go get the first item of the given brand and category.
-function getCoverItem(category, brand) {
+function insertMerchantWithCoverItem(merchant) {
     Fiber(function() {
+        var category = merchant.productCategory;
+        var brand = merchant.brand;
+
         var categoryName = ProductCategory.properties[category].name;
         console.log("search for: " + categoryName + " for " + brand);
 
         // Async search on amazon and wait for the result from the fiber.
         var itemSearchRes = amznItemSearch(categoryName, brand);
-        var dbItem = {};
+        var coverItem = {};
 
         var itemArray = parseItemSearchRes(itemSearchRes);
         // Only get image for the cover item, for now this is the first item.
-        var asin = parseItem(itemArray[0], dbItem);
+        var asin = parseItem(itemArray[0], coverItem);
+        // Override the title.
+        coverItem.title = categoryName;
 
         // Look up image for the item.
         var imageSearchRes = amznItemImage(asin);
-        parseImageSearchRes(imageSearchRes, dbItem);
+        parseImageSearchRes(imageSearchRes, coverItem);
 
-        CoverItems.update(
-            { _id: asin.toString()},
-            {
-                $setOnInsert: {
-                    productCategory: category,
-                    productCategoryName: ProductCategory.properties[category].descriptiveName,
-                    merchant: brand,
-                    detailUrl: dbItem.detailUrl,
-                    title: dbItem.title,
-                    feature: dbItem.features
-                },
-                $set: {
-                    imageUrl: dbItem.imageUrl
-                }
-            },
-            { upsert: true},
-            function(err, res) {
-               if (err) {
-                    console.log('err: ' + err);
-               }
-            });
-        Meteor._sleepForMs(200);
+        merchant['coverItem'] = coverItem;
+        Merchants.insert(merchant, function (err, res) {
+           if (err) {
+                console.log('err inserting merchant: ' + brand + "\n" + err);
+           } else {
+               console.log("inserted merchant " + brand);
+           }
+        });
     }).run();
 }

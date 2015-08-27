@@ -15,11 +15,11 @@
 <!-- The cover item, clicking on it takes you to itemList. -->
 <template name="coverItem">
     <div class="col-sm-4">
-        <a href="itemList/{{productCategory}}/merchant/{{merchant}}">
-            <img src={{imageUrl}} class="img-responsive" alt="item">
+        <a href="itemList/{{productCategory}}/brand/{{brand}}">
+            <img src={{coverItem.imageUrl}} class="img-responsive" alt="item">
                 <span class="productlist-price-container">
                     <span class="product-price">
-                        <span>{{productCategoryName}}</span>
+                        <span>{{coverItem.title}}</span>
                     </span>
                 </span>
         </a>

@@ -1,7 +1,7 @@
 var Fiber = Meteor.npmRequire('fibers');
 
-Meteor.publish('coverItems', function() {
-   return CoverItems.find();
+Meteor.publish('merchants', function() {
+   return Merchants.find();
 });
 
 Meteor.publish('topItems', function(brand, category) {

@@ -84,6 +84,7 @@ Template.collection.helpers({
 
         return socialCategories;
     },
+
     newItem: function() {
         return Session.get('newItem');
     }
@@ -113,7 +114,7 @@ Template.collection.events({
 
             Meteor.call('addToCollection', collectionId, item, function(err, res) {
                 if (err) {
-                    console.error(err);
+                    console.error("error adding to new collection: " + err);
                 } else {
                     console.log("added item to server");
                     Session.set("newItem", null);
