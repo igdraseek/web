@@ -9,10 +9,10 @@ Meteor.methods({
             return dbItem;
         }
 
-        // Could be in topItems and not in any collections yet.
-        dbItem = TopItems.findOne({_id: itemId});
+        // Could be in Items and not in any collections yet.
+        dbItem = Items.findOne({_id: itemId});
         if (dbItem) {
-            console.log("method amznItemDetails: found in TopItems" + itemId);
+            console.log("method amznItemDetails: found in Items" + itemId);
             return dbItem;
         }
 
@@ -28,7 +28,7 @@ Meteor.methods({
             parseItem(item, dbItem);
             dbItem.imageUrl = getImageUrl(item);
 
-            TopItems.update(
+            Items.update(
                 { _id: itemId.toString()},
                 {
                     $setOnInsert: {
@@ -108,19 +108,21 @@ Meteor.methods({
                     }
                 });
         } else {
-            CollectedItems.insert(item);
-            CollectedItems.update(
-                {_id: item._id},
-                {
-                    $currentDate: {
-                        lastCollected: {$type: "timestamp"}
-                    }
-                },
-                function (err, res) {
-                    if (err) {
-                        console.log('err: ' + err);
-                    }
-                });
+            Fiber(function() {
+                var id = insertCollectedItem(item);
+                CollectedItems.update(
+                    {_id: id},
+                    {
+                        $currentDate: {
+                            lastCollected: {$type: "timestamp"}
+                        }
+                    },
+                    function (err, res) {
+                        if (err) {
+                            console.log('err: ' + err);
+                        }
+                    });
+            }).run();
         }
     }
 });
@@ -139,6 +141,23 @@ var newUserCollection = function (userId, title) {
                 console.error(err);
             } else {
                 console.log("inserted new collection: " + res);
+                fiber.run(res);
+            }
+        });
+
+    return Fiber.yield();
+};
+
+var insertCollectedItem = function (item) {
+    var fiber = Fiber.current;
+
+    CollectedItems.insert(
+        item,
+        function (err, res) {
+            if (err) {
+                console.error(err);
+            } else {
+                console.log("inserted new item: " + res);
                 fiber.run(res);
             }
         });

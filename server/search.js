@@ -1,4 +1,4 @@
-SearchSource.defineSource('topItems', function(searchText, options) {
+SearchSource.defineSource('items', function(searchText, options) {
     if(searchText) {
         var regExp = buildRegExp(searchText);
 
@@ -8,10 +8,10 @@ SearchSource.defineSource('topItems', function(searchText, options) {
             {productCategoryName: regExp}
         ]};
 
-        return TopItems.find(selector, options).fetch();
+        return Items.find(selector, options).fetch();
     } else {
         console.log('NO SEARCH TEXT');
-        return TopItems.find({}, options).fetch();
+        return Items.find({}, options).fetch();
     }
 });
 

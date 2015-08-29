@@ -4,12 +4,14 @@ Meteor.publish('merchants', function() {
    return Merchants.find();
 });
 
-Meteor.publish('topItems', function(brand, category) {
+/**
+ * TODO(luping): remove this.
+ */
+Meteor.publish('itemsForBrand', function(brand, category) {
    var categoryName = ProductCategory.properties[category].name;
-   console.log("publish topItems, category: " + categoryName + ", brand: " + brand);
 
-   if (TopItems.findOne({merchant: brand, productCategory: category}) == undefined) {
-       console.log('TopItems is empty');
+   if (Items.findOne({merchant: brand, productCategory: category}) == undefined) {
+       console.log('Items for brand ' + brand + 'is empty');
        Fiber(function() {
            // Async search on amazon and wait for the result from the fiber.
            var itemSearchRes = amznItemSearch(categoryName, brand);
@@ -25,7 +27,7 @@ Meteor.publish('topItems', function(brand, category) {
       }).run();
    } else {
        var query = { merchant: brand, productCategory: category, imageUrl: '/img/default.png'};
-       var itemsWithoutImage = TopItems.find(query);
+       var itemsWithoutImage = Items.find(query);
        console.log(query);
         if (itemsWithoutImage.count() > 0) {
             console.log('Fetching images for subset of ' + itemsWithoutImage.count()
@@ -43,7 +45,15 @@ Meteor.publish('topItems', function(brand, category) {
    }
 
    // TODO(luping): add sortby and limit.
-   return TopItems.find({ merchant: brand, productCategory: category});
+   return Items.find({ merchant: brand, productCategory: category});
+});
+
+/**
+ * For the trending tab. These are newly collected, or had a lot of (how many?) clicks/buys in
+ * the last week.
+ */
+Meteor.publish('trendingItems', function() {
+
 });
 
 Meteor.publish('userCollections', function(collectionId) {
@@ -58,9 +68,11 @@ Meteor.publish('collectedItems', function() {
 function getImageUrlAndUpdateItem(asin, dbItem, brand, category) {
     var imageSearchRes = amznItemImage(asin);
     parseImageSearchRes(imageSearchRes, dbItem);
-    // TODO(luping): if failed to fetch image, schedule to refetch the item in a little bit.
 
-    TopItems.update(
+    // TODO(luping): if failed to fetch image (due to Amazon throttling, schedule to refetch
+    // the item in a little bit. Currently you have to manually refresh the page.
+
+    Items.update(
         { _id: asin.toString()},
         {
             $setOnInsert: {
@@ -70,7 +82,12 @@ function getImageUrlAndUpdateItem(asin, dbItem, brand, category) {
                 merchant: brand,
                 detailUrl: dbItem.detailUrl,
                 title: dbItem.title,
-                feature: dbItem.features
+                feature: dbItem.features,
+                collections: [],
+                trending_score: 1.0
+            },
+            $currentDate: {
+                last_accessed: {$type: "timestamp"}
             },
             $set: {
                 imageUrl: dbItem.imageUrl

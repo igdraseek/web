@@ -4,7 +4,7 @@ var options = {
 };
 var fields = ['merchant', 'title', 'productCategoryName'];
 
-ItemSearch = new SearchSource('topItems', fields, options);
+ItemSearch = new SearchSource('items', fields, options);
 
 Template.searchBox.helpers({
     getMatches: function() {
