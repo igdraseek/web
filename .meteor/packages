@@ -1,7 +1,5 @@
 meteor-platform
 insecure
-nemo64:bootstrap
-less
 accounts-ui
 accounts-password
 iron:router
@@ -11,3 +9,4 @@ npm-container
 meteorhacks:search-source
 accounts-facebook
 service-configuration
+twbs:bootstrap
