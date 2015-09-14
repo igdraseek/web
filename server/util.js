@@ -97,13 +97,16 @@ parseItemSearchRes = function (res) {
     }
 
     return itemArray;
-}
+};
 
 parseItem = function(amznItem, dbItem) {
     dbItem.detailUrl = amznItem['DetailPageURL'];
+
     var attrs = amznItem['ItemAttributes'][0];
     dbItem.title = attrs['Title'];
     dbItem.features = attrs['Feature'];
+    dbItem.price = {FormattedPrice: "$$$"};  // Implement next.
+    dbItem.isEligibleForPrime = 0;  // Implement next.
 
     return amznItem['ASIN'];
 };
@@ -113,41 +116,31 @@ parseImageSearchRes = function(res, dbItem) {
     var xmlResponse = res[1];
 
     var response = jsonResponse['ItemLookupResponse'];
-    var imageUrl = "/img/default.png";
     if (response != undefined) {
         var imageItems = response['Items'][0];
         var imageItem = imageItems['Item'][0];
-        //console.log('------ImageSets---- lenghth : ' + imageSets.length + '-----');
-        if (imageItem != undefined) {
-            imageUrl = getImageUrl(imageItem);
-        } else {
-            console.warn('Image Item is undefined for \"' + dbItem.title + '\"\n' + xmlResponse);
-        }
+        parseImageItem(imageItem, dbItem);
     } else {
         console.warn('ImageResponse is undefined for \"' + dbItem.title + '\"\n' + xmlResponse);
     }
-
-    dbItem.imageUrl = imageUrl;
 };
 
-getImageUrl = function(imageItem) {
-    var imageUrl;
-    var mediumImage = imageItem['MediumImage'][0];
-    if (mediumImage != undefined) {
-        imageUrl = mediumImage['URL'];
+parseImageItem = function(imageItem, dbItem) {
+    if (!imageItem) {
+        dbItem.mediumImageUrl = "/img/default.png";
     } else {
+        var mediumImage = imageItem['MediumImage'][0];
+        if (mediumImage != undefined) {
+            dbItem.mediumImageUrl = mediumImage['URL'];
+        }
         var largeImage = imageItem['LargeImage'][0];
         if (largeImage != undefined) {
-            imageUrl = largeImage['URL'];
-        } else {
-            var smallImage = imageItem['SmallImage'][0];
-            if (smallImage != undefined) {
-                imageUrl = smallImage['URL'];
-            } else {
-                console.warn('No images found for \"' + dbItem.title + '\"\n' + xmlResponse);
-            }
+            dbItem.largeImageUrl = largeImage['URL'];
+        }
+
+        var smallImage = imageItem['SmallImage'][0];
+        if (smallImage != undefined) {
+            dbItem.smallImageUrl = smallImage['URL'];
         }
     }
-
-    return imageUrl;
 };

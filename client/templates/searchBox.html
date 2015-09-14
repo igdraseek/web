@@ -1,6 +1,6 @@
 <template name="searchBox">
-    <div id='search-box-container' class="dropdown">
-        <input type="text" id="search-box" data-toggle="dropdown" class="dropdown-toggle"/>
+    <div id='search-box-container' class="dropdown" role="search">
+        <input type="text" id="search-box" data-toggle="dropdown" class="dropdown-toggle" placeholder="Type to search"/>
         <ul class="dropdown-menu">
             {{#each getMatches}}
                 {{#each matches}}
@@ -8,7 +8,7 @@
                         <a href="{{link}}">{{{matchText}}}</a>
                     </li>
                 {{/each}}
-                <li>--------------</li>
+                <li role="separator" class="divider"></li>
             {{/each}}
         </ul>
     </div>

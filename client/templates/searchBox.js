@@ -48,9 +48,6 @@ Template.searchBox.helpers({
             }
         });
 
-        console.log('items:');
-        console.dir(items);
-
         var matches = [];
         var categoryMatches = [];
         var categoryMatchesCount = 0
@@ -92,8 +89,6 @@ Template.searchBox.helpers({
             matches.push({matches: titleMatches});
         }
 
-        console.log("matches:");
-        console.dir(matches);
         return matches;
     },
 

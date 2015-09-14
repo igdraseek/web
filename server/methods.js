@@ -26,7 +26,7 @@ Meteor.methods({
             var item = items['Item'][0];
 
             parseItem(item, dbItem);
-            dbItem.imageUrl = getImageUrl(item);
+            parseImageItem(item, dbItem);
 
             Items.update(
                 { _id: itemId.toString()},
@@ -37,11 +37,15 @@ Meteor.methods({
                         //merchant: brand,
                         detailUrl: dbItem.detailUrl,
                         title: dbItem.title,
+                        price: dbItem.price,
+                        isEligibleForPrime: dbItem.isEligibleForPrime,
                         feature: dbItem.features,
                         socialCategories: []
                     },
                     $set: {
-                        imageUrl: dbItem.imageUrl
+                        largeImageUrl: dbItem.largeImageUrl,
+                        mediumImageUrl: dbItem.mediumImageUrl,
+                        smallImageUrl: dbItem.smallImageUrl
                     }                },
                 { upsert: true},
                 function(err, res) {

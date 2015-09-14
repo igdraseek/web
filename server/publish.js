@@ -10,7 +10,7 @@ Meteor.publish('merchants', function() {
 Meteor.publish('itemsForBrand', function(brand, category) {
    var categoryName = ProductCategory.properties[category].name;
 
-   if (Items.findOne({merchant: brand, productCategory: category}) == undefined) {
+   if (!Items.findOne({merchant: brand, productCategory: category})) {
        console.log('Items for brand ' + brand + 'is empty');
        Fiber(function() {
            // Async search on amazon and wait for the result from the fiber.
@@ -22,11 +22,11 @@ Meteor.publish('itemsForBrand', function(brand, category) {
               var dbItem = {};
               var asin = parseItem(itemArray[i], dbItem);
               getImageUrlAndUpdateItem(asin, dbItem, brand, category);
-              Meteor._sleepForMs(100);
+              Meteor._sleepForMs(150);
           }
       }).run();
    } else {
-       var query = { merchant: brand, productCategory: category, imageUrl: '/img/default.png'};
+       var query = { merchant: brand, productCategory: category, mediumImageUrl: '/img/default.png'};
        var itemsWithoutImage = Items.find(query);
        console.log(query);
         if (itemsWithoutImage.count() > 0) {
@@ -38,7 +38,7 @@ Meteor.publish('itemsForBrand', function(brand, category) {
                     var dbItem = itemArray[i];
                     var asin = dbItem._id;
                     getImageUrlAndUpdateItem(asin, dbItem, brand, category);
-                    Meteor._sleepForMs(100);
+                    Meteor._sleepForMs(150);
                 }
             }).run();
        }
@@ -46,14 +46,6 @@ Meteor.publish('itemsForBrand', function(brand, category) {
 
    // TODO(luping): add sortby and limit.
    return Items.find({ merchant: brand, productCategory: category});
-});
-
-/**
- * For the trending tab. These are newly collected, or had a lot of (how many?) clicks/buys in
- * the last week.
- */
-Meteor.publish('trendingItems', function() {
-
 });
 
 Meteor.publish('userCollections', function(collectionId) {
@@ -82,15 +74,19 @@ function getImageUrlAndUpdateItem(asin, dbItem, brand, category) {
                 merchant: brand,
                 detailUrl: dbItem.detailUrl,
                 title: dbItem.title,
+                price: dbItem.price,
+                isEligibleForPrime: dbItem.isEligibleForPrime,
                 feature: dbItem.features,
                 collections: [],
                 trending_score: 1.0
             },
-            $currentDate: {
-                last_accessed: {$type: "timestamp"}
-            },
+            //$currentDate: {
+            //    last_accessed: {$type: "timestamp"}
+            //},
             $set: {
-                imageUrl: dbItem.imageUrl
+                largeImageUrl: dbItem.largeImageUrl,
+                mediumImageUrl: dbItem.mediumImageUrl,
+                smallImageUrl: dbItem.smallImageUrl
             }                },
         { upsert: true},
         function(err, res) {

@@ -1,9 +1,6 @@
 <!-- Show a few top categories. -->
 <template name="igdraseek">
-
-    {{> searchBox}}
-
-    <div class="container-fluid productlist">
+    <div class="container-fluid">
         <div class="row">
             {{#each coverItems}}
                 {{> coverItem}}
@@ -16,10 +13,10 @@
 <template name="coverItem">
     <div class="col-sm-4">
         <a href="itemList/{{productCategory}}/brand/{{brand}}">
-            <img src={{coverItem.imageUrl}} class="img-responsive" alt="item">
+            <img src={{coverItem.mediumImageUrl}} class="img-responsive" alt="item">
                 <span class="productlist-price-container">
                     <span class="product-price">
-                        <span>{{coverItem.title}}</span>
+                        <span>{{brand}}</span>
                     </span>
                 </span>
         </a>
@@ -28,23 +25,44 @@
 
 <!-- Product list -->
 <template name="itemList">
-
-    {{> searchBox}}
-
-    <div class="container-fluid productlist">
+    <div class="container-fluid productList">
         <div class="row">
             {{#each itemsForBrand}}
                 {{> itemDetail}}
             {{/each}}
         </div>
     </div>
+
+   {{#with selectedItem}}
+       <div class="overlay">
+            <div id="productDetailContainer" class="container-fluid">
+                <button class="close close-btn">&times;</button>
+                <div class="row">
+                        <div id="productDetailImageContainer" class="col-sm-7">
+                            <img src={{largeImageUrl}}>
+                        </div>
+                        <div id="productDetailTextContainer" class="col-sm-5">
+                            <div id="productDetailTitle">{{title}}</div>
+                            <div id="productDetailPrice">{{price.[0].FormattedPrice}}</div>
+                            <ul>
+                                {{#each feature}}
+                                    <li>{{this}}</li>
+                                {{/each}}
+                            </ul>
+                            <div id="productDetailBuyBtn"><a href="{{detailUrl}}"><button id="buyButton" class="btn btn-danger">Buy on Amazon</button></a></div>
+                        </div>
+
+                </div>
+            </div>
+       </div>
+   {{/with}}
 </template>
 
 <!-- A single item. -->
 <template name="itemDetail">
     <div class="col-sm-4">
-        <a href={{detailUrl}}>
-            <img src={{imageUrl}} class="img-responsive">
+        <a href=# class="listItem">
+            <img src={{mediumImageUrl}} class="img-responsive">
                 <span class="productlist-price-container">
                     <span class="product-price">
                         <span>{{title}}</span>
