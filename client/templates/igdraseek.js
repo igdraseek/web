@@ -16,13 +16,13 @@ Template.igdraseek.helpers({
     }
 });
 
-Template.itemList.helpers({
+Template.appBody.helpers({
     selectedItem: function() {
         return Session.get('selectedItem');
     }
 });
 
-Template.itemList.events({
+Template.productDetail.events({
     'click .close': function (event) {
         console.log("close!");
         event.preventDefault();
@@ -32,17 +32,10 @@ Template.itemList.events({
 
 Template.itemDetail.events({
    'click .listItem': function(event) {
-       console.log("selected!");
 
        // prevent the default behavior
        event.preventDefault();
 
        Session.set('selectedItem', this);
-       var item = Session.get('selectedItem');
-       var price = item.price;
-       console.log("price:");
-       console.dir(price);
-       console.log("formattedprice:");
-       console.dir(price[0].FormattedPrice);
    }
 });

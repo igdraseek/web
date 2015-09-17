@@ -1,32 +1,28 @@
 var Fiber = Meteor.npmRequire('fibers');
 
 Meteor.methods({
-    'amznItemDetails': function(itemId) {
+    'amznItemLookup': function(itemId) {
         // Look into collected items first.
         var dbItem = CollectedItems.findOne({_id: itemId});
         if (dbItem) {
-            console.log("method amznItemDetails: found in CollectedItems " + itemId);
+            console.log("method amznItemLookup: found in CollectedItems " + itemId);
             return dbItem;
         }
 
         // Could be in Items and not in any collections yet.
         dbItem = Items.findOne({_id: itemId});
         if (dbItem) {
-            console.log("method amznItemDetails: found in Items" + itemId);
+            console.log("method amznItemLookup: found in Items" + itemId);
             return dbItem;
         }
 
         Fiber(function () {
             dbItem = {};
-            var results = amznItemDetails(itemId);
-            var jsonRes = results[0];
-            var itemLookupRes = jsonRes['ItemLookupResponse'];
-            var items = itemLookupRes['Items'][0];
-            console.dir(items);
-            var item = items['Item'][0];
+            var results = amznItemLookup(itemId);
+            var items = parseItemLookupRes(results);
+            var item = items[0];
 
             parseItem(item, dbItem);
-            parseImageItem(item, dbItem);
 
             Items.update(
                 { _id: itemId.toString()},

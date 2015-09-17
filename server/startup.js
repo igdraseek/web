@@ -74,57 +74,21 @@ Meteor.startup(function() {
 
     // Populate the merchants table.
     if (!Merchants.findOne()) {
+        var initializeItems = (!Items.findOne());
         _.each(merchants, function (merchant) {
-            initializeMerchants(merchant);
+            initializeMerchantsAndItems(merchant, true, initializeItems);
         });
     }
 
     if (!Items.findOne()) {
         _.each(merchants, function (merchant) {
-            initializeItemsForMerchant(merchant);
+            initializeMerchantsAndItems(merchant, false, true);
         });
     }
 });
 
 // For now we just go get the first item of the given brand and category.
-function initializeMerchants(merchant) {
-    Fiber(function() {
-        var category = merchant.productCategory;
-        var brand = merchant.brand;
-
-        var categoryName = ProductCategory.properties[category].name;
-        console.log("search for: " + categoryName + " for " + brand);
-
-        // Async search on amazon and wait for the result from the fiber.
-        var itemSearchRes = amznItemSearch(categoryName, brand);
-
-        var itemArray = parseItemSearchRes(itemSearchRes);
-        var item = itemArray[0];
-        var dbItem = {
-            productCategory: category,
-            productCategoryName: ProductCategory.properties[category].descriptiveName,
-            socialCategories: [],
-            merchant: brand
-        };
-        var asin = parseItem(item, dbItem);
-
-        // Look up image for the item.
-        var imageSearchRes = amznItemImage(asin);
-        parseImageSearchRes(imageSearchRes, dbItem);
-
-        merchant['coverItem'] = dbItem;
-        Merchants.insert(merchant, function (err, res) {
-            if (err) {
-                console.log('err inserting merchant: ' + brand + "\n" + err);
-            } else {
-                console.log("inserted merchant " + brand);
-            }
-        });
-
-    }).run();
-}
-
-function initializeItemsForMerchant(merchant) {
+function initializeMerchantsAndItems(merchant, initializeMerchants, initializeItems) {
     Fiber(function() {
         var category = merchant.productCategory;
         var brand = merchant.brand;
@@ -138,17 +102,34 @@ function initializeItemsForMerchant(merchant) {
         var itemArray = parseItemSearchRes(itemSearchRes);
 
         for (var i = 0; i < itemArray.length; i++) {
+            var item = itemArray[i];
             var dbItem = {
                 productCategory: category,
                 productCategoryName: ProductCategory.properties[category].descriptiveName,
                 socialCategories: [],
                 merchant: brand
             };
-            var asin = parseItem(itemArray[i], dbItem);
+            var asin = parseItem(item, dbItem);
 
-            // Look up image for the item.
-            var imageSearchRes = amznItemImage(asin);
-            parseImageSearchRes(imageSearchRes, dbItem);
+            // Insert the merchant with a cover item.
+            if (i == 0 && initializeMerchants) {
+                var coverItem = dbItem;
+                coverItem.asin = asin;
+
+                merchant['coverItem'] = coverItem;
+                Merchants.insert(merchant, function (err, res) {
+                    if (err) {
+                        console.log('err inserting merchant: ' + brand + "\n" + err);
+                    } else {
+                        console.log("inserted merchant " + brand);
+                    }
+                });
+            }
+
+            if (!initializeItems) {
+                break;
+            }
+
             Items.update(
                 { _id: asin.toString()},
                 {
@@ -177,9 +158,6 @@ function initializeItemsForMerchant(merchant) {
                         console.log('err inserting to Items: ' + err);
                     }
                 });
-
-            // Amazon throttles itemLookup request.
-            Meteor._sleepForMs(200);
         }
     }).run();
 }

@@ -30,7 +30,7 @@ Template.addCollection.events({
                 var asin = url.substring(startIndex, endIndex);
                 console.log('asin: ' + asin);
 
-                Meteor.call('amznItemDetails', asin, function(err, res) {
+                Meteor.call('amznItemLookup', asin, function(err, res) {
                     if (err) {
                         console.error(err);
                     } else {

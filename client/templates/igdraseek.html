@@ -32,33 +32,9 @@
             {{/each}}
         </div>
     </div>
-
-   {{#with selectedItem}}
-       <div class="overlay">
-            <div id="productDetailContainer" class="container-fluid">
-                <button class="close close-btn">&times;</button>
-                <div class="row">
-                        <div id="productDetailImageContainer" class="col-sm-7">
-                            <img src={{largeImageUrl}}>
-                        </div>
-                        <div id="productDetailTextContainer" class="col-sm-5">
-                            <div id="productDetailTitle">{{title}}</div>
-                            <div id="productDetailPrice">{{price.[0].FormattedPrice}}</div>
-                            <ul>
-                                {{#each feature}}
-                                    <li>{{this}}</li>
-                                {{/each}}
-                            </ul>
-                            <div id="productDetailBuyBtn"><a href="{{detailUrl}}"><button id="buyButton" class="btn btn-danger">Buy on Amazon</button></a></div>
-                        </div>
-
-                </div>
-            </div>
-       </div>
-   {{/with}}
 </template>
 
-<!-- A single item. -->
+<!-- A single item in a product list. -->
 <template name="itemDetail">
     <div class="col-sm-4">
         <a href=# class="listItem">
@@ -69,6 +45,31 @@
                     </span>
                 </span>
         </a>
+    </div>
+</template>
+
+<!-- Product detail overlay. -->
+<template name="productDetail">
+    <div class="overlay">
+        <div id="productDetailContainer" class="container-fluid">
+            <button class="close close-btn">&times;</button>
+            <div class="row">
+                <div id="productDetailImageContainer" class="col-sm-7">
+                    <img src={{largeImageUrl}}>
+                </div>
+                <div id="productDetailTextContainer" class="col-sm-5">
+                    <div id="productDetailTitle">{{{title}}}</div>
+                    <div id="productDetailPrice">{{price.[0].FormattedPrice}}</div>
+                    <ul>
+                        {{#each feature}}
+                            <li>{{this}}</li>
+                        {{/each}}
+                    </ul>
+                    <div id="productDetailBuyBtn"><a href="{{detailUrl}}"><button id="buyButton" class="btn btn-danger">Buy on Amazon</button></a></div>
+                </div>
+
+            </div>
+        </div>
     </div>
 </template>
 

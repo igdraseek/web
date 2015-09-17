@@ -24,21 +24,25 @@ Template.searchBox.helpers({
                             matchData.push({
                                 matchField: 'merchant',
                                 matchText: doc.merchant + ' in ' + doc.productCategoryName,
-                                link: '/itemList/' + doc.productCategory + '/merchant/' + merchantName
+                                link: '/itemList/' + doc.productCategory + '/merchant/' + merchantName,
+                                class: 'searchMerchant'
                             });
                         }
                         if (doc['productCategoryName'].indexOf("<b>") != -1) {
                             matchData.push({
                                 matchField: 'productCategoryName',
                                 matchText: 'Shop for ' + doc.productCategoryName,
-                                link: '/itemList/' + doc.productCategory + '/merchant/' + merchantName
+                                link: '/itemList/' + doc.productCategory + '/merchant/' + merchantName,
+                                class: 'searchCategory'
                             });
                         }
                         if (doc['title'].indexOf("<b>") != -1) {
                             matchData.push({
                                 matchField: 'title',
                                 matchText: doc.title,
-                                link: doc.detailUrl
+                                link: '#',
+                                class: 'searchItem',
+                                data: doc
                             });
                         }
 
@@ -92,8 +96,6 @@ Template.searchBox.helpers({
         return matches;
     },
 
-
-
     isLoading: function() {
         return ItemSearch.getStatus().loading;
     }
@@ -104,5 +106,12 @@ Template.searchBox.events({
         var text = $(e.target).val().trim();
         console.log("search text: " + text);
         ItemSearch.search(text, {limit : 20});
-    }, 300)
+    }, 300),
+
+    "click .searchItem": function(e) {
+        // prevent the default behavior
+        event.preventDefault();
+
+        Session.set('selectedItem', this.data);
+    }
 });

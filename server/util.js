@@ -26,7 +26,7 @@ amznItemSearch = function (category, brand) {
     opHelper.execute('ItemSearch', {
         'SearchIndex': category,
         'Brand': brand,
-        'ResponseGroup': 'ItemAttributes'
+        'ResponseGroup': 'ItemAttributes,Offers,Images,VariationSummary'
     }, function (err, jsonRes, xmlRes) { // you can add a third parameter for the raw xml response, "results" here are currently parsed using xml2js
         if(err) {
             console.log('err in amznItemSearch for ' + brand + ': ' + err);
@@ -39,35 +39,16 @@ amznItemSearch = function (category, brand) {
     return Fiber.yield();
 };
 
-amznItemImage = function(itemId, dbItem) {
+amznItemLookup = function(itemId) {
     var fiber = Fiber.current;
 
     opHelper.execute('ItemLookup', {
         'ItemId': itemId,
         'IdType' : 'ASIN',
-        'ResponseGroup': 'Images'
+        'ResponseGroup': 'ItemAttributes,Offers,Images,VariationSummary'
     }, function (err, jsonRes, xmlRes) {
         if (err) {
-            console.log('err in amznItemImage for ' + dbItem.title + ': ' + err);
-            console.dir(xmlRes);
-        } else {
-            fiber.run([jsonRes, xmlRes]);
-        }
-    });
-
-    return Fiber.yield();
-};
-
-amznItemDetails = function(itemId) {
-    var fiber = Fiber.current;
-
-    opHelper.execute('ItemLookup', {
-        'ItemId': itemId,
-        'IdType' : 'ASIN',
-        'ResponseGroup': 'ItemAttributes,Images'
-    }, function (err, jsonRes, xmlRes) {
-        if (err) {
-            console.log('err in amznItemDetails for ' + itemId + ': ' + err);
+            console.log('err in amznItemLookup for ' + itemId + ': ' + err);
             console.dir(xmlRes);
         } else {
             fiber.run([jsonRes, xmlRes]);
@@ -85,14 +66,14 @@ parseItemSearchRes = function (res) {
     // Parese the ItemSearch result to get the itemId
     var response = jsonResponse['ItemSearchResponse'];
     if (response == undefined) {
-        console.error("Response is undefined: " + xmlResponse);
+        console.error("ItemSearchResponse is undefined: " + xmlResponse);
         return;
     }
     var items = response['Items'][0];
     var itemArray = items['Item'];
 
     if (itemArray == undefined) {
-        console.error('No Items found for ' + categoryName + ', items:\n' + items);
+        console.error('ItemSearchResponse: No Items found for items:\n' + items);
         return;
     }
 
@@ -100,47 +81,109 @@ parseItemSearchRes = function (res) {
 };
 
 parseItem = function(amznItem, dbItem) {
+    var asin = amznItem['ASIN'];
+
     dbItem.detailUrl = amznItem['DetailPageURL'];
 
+    // Parse the attributes
     var attrs = amznItem['ItemAttributes'][0];
     dbItem.title = attrs['Title'];
     dbItem.features = attrs['Feature'];
-    dbItem.price = {FormattedPrice: "$$$"};  // Implement next.
-    dbItem.isEligibleForPrime = 0;  // Implement next.
 
-    return amznItem['ASIN'];
+    // Parse the offer to get price and amazon-prime info
+    var offers = amznItem['Offers'];
+    var offer = offers[0]['Offer'];
+    if (!offer) {
+        console.error("No offer for " + dbItem.title +", try VariationSummary");
+        var variations = amznItem['VariationSummary'];
+        dbItem.price = variations[0]['LowestPrice'];
+    } else {
+        var offerListing = offer[0]['OfferListing'];
+        if (offerListing) {
+            dbItem.price = offerListing['Price'];
+            dbItem.isEligibleForPrime = offerListing['IsEligibleForPrime'];
+        }
+    }
+
+    // Parse the images
+    parseItemImages(amznItem, dbItem);
+
+    console.log("parsed dbItem:");
+    console.dir(dbItem);
+
+    return asin;
 };
 
-parseImageSearchRes = function(res, dbItem) {
+parseItemLookupRes = function(res) {
     var jsonResponse = res[0];
     var xmlResponse = res[1];
 
     var response = jsonResponse['ItemLookupResponse'];
-    if (response != undefined) {
-        var imageItems = response['Items'][0];
-        var imageItem = imageItems['Item'][0];
-        parseImageItem(imageItem, dbItem);
-    } else {
-        console.warn('ImageResponse is undefined for \"' + dbItem.title + '\"\n' + xmlResponse);
+    if (response == undefined) {
+        console.error("ItemLookupResponse is undefined: " + xmlResponse);
+        return;
     }
+    var items = response['Items'][0];
+    var itemArray = items['Item'];
+
+    if (itemArray == undefined) {
+        console.error('ItemLookupResponse: No Items found for items:\n' + items);
+        return;
+    }
+
+    return itemArray;
 };
 
-parseImageItem = function(imageItem, dbItem) {
-    if (!imageItem) {
+parseItemImages = function(amznItem, dbItem) {
+    if (!amznItem) {
         dbItem.mediumImageUrl = "/img/default.png";
     } else {
-        var mediumImage = imageItem['MediumImage'][0];
-        if (mediumImage != undefined) {
+        var mediumImage = amznItem['MediumImage'][0];
+        if (mediumImage) {
             dbItem.mediumImageUrl = mediumImage['URL'];
         }
-        var largeImage = imageItem['LargeImage'][0];
-        if (largeImage != undefined) {
+        var largeImage = amznItem['LargeImage'][0];
+        if (largeImage) {
             dbItem.largeImageUrl = largeImage['URL'];
         }
 
-        var smallImage = imageItem['SmallImage'][0];
-        if (smallImage != undefined) {
+        var smallImage = amznItem['SmallImage'][0];
+        if (smallImage) {
             dbItem.smallImageUrl = smallImage['URL'];
         }
     }
+};
+
+// Only call this from within a Fiber.
+upsertItem = function(asin, dbItem, brand, category) {
+    Items.update(
+        { _id: asin.toString()},
+        {
+            $setOnInsert: {
+                productCategory: category,
+                productCategoryName: ProductCategory.properties[category].descriptiveName,
+                socialCategories: [],
+                merchant: brand,
+                detailUrl: dbItem.detailUrl,
+                title: dbItem.title,
+                isEligibleForPrime: dbItem.isEligibleForPrime,
+                feature: dbItem.features,
+                collections: [],
+                trending_score: 1.0
+            },
+            //$currentDate: {
+            //    last_accessed: {$type: "timestamp"}
+            //},
+            $set: {
+                price: dbItem.price,
+                largeImageUrl: dbItem.largeImageUrl,
+                mediumImageUrl: dbItem.mediumImageUrl,
+                smallImageUrl: dbItem.smallImageUrl
+            }                },
+        { upsert: true},
+        function(err, res) {
+            if (err) {
+                console.log('err: ' + err);
+            }
+        });
 };

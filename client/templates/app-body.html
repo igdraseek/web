@@ -7,6 +7,10 @@
         </div>
 
         {{> footer}}
+
+        {{#with selectedItem}}
+            {{> productDetail}}
+        {{/with}}
     </div>
 </template>
 
