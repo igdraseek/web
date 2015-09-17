@@ -24,7 +24,7 @@ Template.searchBox.helpers({
                             matchData.push({
                                 matchField: 'merchant',
                                 matchText: doc.merchant + ' in ' + doc.productCategoryName,
-                                link: '/itemList/' + doc.productCategory + '/merchant/' + merchantName,
+                                link: '/itemList/' + doc.productCategory + '/brand/' + merchantName,
                                 class: 'searchMerchant'
                             });
                         }
@@ -32,7 +32,7 @@ Template.searchBox.helpers({
                             matchData.push({
                                 matchField: 'productCategoryName',
                                 matchText: 'Shop for ' + doc.productCategoryName,
-                                link: '/itemList/' + doc.productCategory + '/merchant/' + merchantName,
+                                link: '/itemList/' + doc.productCategory + '/brand/' + merchantName,
                                 class: 'searchCategory'
                             });
                         }

@@ -42,7 +42,8 @@ Meteor.methods({
                         largeImageUrl: dbItem.largeImageUrl,
                         mediumImageUrl: dbItem.mediumImageUrl,
                         smallImageUrl: dbItem.smallImageUrl
-                    }                },
+                    }
+                },
                 { upsert: true},
                 function(err, res) {
                     if (err) {

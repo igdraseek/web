@@ -100,16 +100,16 @@ parseItem = function(amznItem, dbItem) {
     } else {
         var offerListing = offer[0]['OfferListing'];
         if (offerListing) {
-            dbItem.price = offerListing['Price'];
-            dbItem.isEligibleForPrime = offerListing['IsEligibleForPrime'];
+            var offerListingData = offerListing[0];
+            dbItem.price = offerListingData['Price'];
+            dbItem.isEligibleForPrime = offerListingData['IsEligibleForPrime'];
         }
     }
 
+    //console.dir(amznItem);
+
     // Parse the images
     parseItemImages(amznItem, dbItem);
-
-    console.log("parsed dbItem:");
-    console.dir(dbItem);
 
     return asin;
 };
@@ -166,6 +166,7 @@ upsertItem = function(asin, dbItem, brand, category) {
                 merchant: brand,
                 detailUrl: dbItem.detailUrl,
                 title: dbItem.title,
+                price: dbItem.price,
                 isEligibleForPrime: dbItem.isEligibleForPrime,
                 feature: dbItem.features,
                 collections: [],
@@ -175,7 +176,6 @@ upsertItem = function(asin, dbItem, brand, category) {
             //    last_accessed: {$type: "timestamp"}
             //},
             $set: {
-                price: dbItem.price,
                 largeImageUrl: dbItem.largeImageUrl,
                 mediumImageUrl: dbItem.mediumImageUrl,
                 smallImageUrl: dbItem.smallImageUrl

@@ -153,6 +153,7 @@ function initializeMerchantsAndItems(merchant, initializeMerchants, initializeIt
                     //    last_accessed: {$type: "timestamp"}
                     //}
                 },
+                { upsert: true},
                 function (err, res) {
                     if (err) {
                         console.log('err inserting to Items: ' + err);
